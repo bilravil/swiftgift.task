@@ -20,16 +20,17 @@ router.get('/webhook', (req, res) => {
     
   if (mode && token) {
   
-    if (mode === 'subscribe' && token === VERIFY_TOKEN) {    
-      res.status(200).send(challenge);    
+    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+      res.status(200).send(challenge);
     } else {
       res.sendStatus(403);
     }
   }
 });
 
-router.post('/webhook', (req, res) => {  
+router.post('/webhook', (req, res) => {
   let body = req.body;
+  console.log(body);
   if (body.object === 'page') {
     body.entry.forEach(function(entry) {
 
@@ -123,7 +124,7 @@ function getGiftsData(data){
         sendErrorMessage(sender, 'Try again please');
         throw new Error('Error on get data from API', error);
       } else if (response.body.error) {
-        sendErrorMessage(sender, 'Try again please');        
+        sendErrorMessage(sender, 'Try again please');
         throw new Error('Error on get data from API', response.body.error);
       }
       if(body){
