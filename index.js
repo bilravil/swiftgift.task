@@ -120,10 +120,10 @@ function createMessage(sender, data){
       data.map((i, index) => {
         response.push({
           title: i.name,
-          image_url:i.image_url.substr(2),
+          image_url: i.image_url.substr(2),
           subtitle: i.lowest_price + i.currency,
         });
-        if(index === data.length -1){
+        if(index === 5){
           sendText(sender, response);
         }
       })
