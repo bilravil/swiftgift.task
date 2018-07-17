@@ -50,16 +50,15 @@ app.post('/webhook', (req, res) => {
     body.entry.forEach(function(entry) {
 
       let webhook_event = entry.messaging[0];
-      console.log(webhook_event);
       let message = webhook_event.message.text;
       let sender = webhook_event.sender.id;
+      console.log('MESSAGE', message);
       getGift(message).then(
         (res) => {
-          console.log(res);
           if(res.collection){
-            sendText(sender, JSON.stringify(res.collection));
+            return sendText(sender, JSON.stringify(res.collection));
           }else{
-            sendText(sender, 'Ohh.. No gifts');
+            return sendText(sender, 'Ohh.. No gifts');
           }
         },
         (err) => {
@@ -67,7 +66,6 @@ app.post('/webhook', (req, res) => {
         }
       )
     });
-
     res.status(200).send('EVENT_RECEIVED');
   } else {
     res.sendStatus(404);
@@ -89,7 +87,6 @@ function sendText(sender, text) {
 		if (error) {
 			console.log("sending error")
 		} else if (response.body.error) {
-      console.log(response.body.error);
 			console.log("response body error")
 		}console.log(body);
 	})
