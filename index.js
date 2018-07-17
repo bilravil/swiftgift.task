@@ -69,6 +69,7 @@ app.post('/webhook', (req, res) => {
 });
 
 function sendText(sender, name, price, image) {
+  console.log(image);
 	request({
 		url: "https://graph.facebook.com/v2.6/me/messages",
 		qs : { access_token: token },
@@ -123,7 +124,7 @@ function createMessage(sender, data){
   return new Promise((resolve, reject) => {
     if(data.length > 0){
       data.map((i, index) => {
-        sendText(sender, i.name,i.lowest_price, i.image_url);
+        sendText(sender, i.name,i.lowest_price, i.image_url.substr(2));
       })
       
     }else{
