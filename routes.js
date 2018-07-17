@@ -12,6 +12,7 @@ const FB_API = process.env.FB_API || '';
 const SEARCH_API = process.env.SEARCH_API || '';
 const NO_RESULT_IMAGE = process.env.NO_RESULT_IMAGE || '';
 
+console.log(process.env);
 router.get('/webhook', (req, res) => {
 
   let mode = req.query['hub.mode'];
