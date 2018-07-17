@@ -48,24 +48,23 @@ app.post('/webhook', (req, res) => {
   if (body.object === 'page') {
 
     body.entry.forEach(function(entry) {
-
       let webhook_event = entry.messaging[0];
-      if(!webhook_event.message) return;
-      let message = webhook_event.message.text;
-      let sender = webhook_event.sender.id;
-      console.log('MESSAGE', message);
-      getGift(message).then(
-        (res) => {
-          if(res.collection){
-            return sendText(sender, JSON.stringify(res.collection));
-          }else{
-            return sendText(sender, 'Ohh.. No gifts');
+      if(!webhook_event.message) {
+        let message = webhook_event.message.text;
+        let sender = webhook_event.sender.id;
+        getGift(message).then(
+          (res) => {
+            if(res.collection.length > 0){
+              sendText(sender, JSON.stringify(res.collection));
+            }else{
+              sendText(sender, 'Ohh.. No gifts');
+            }
+          },
+          (err) => {
+            console.log(err);
           }
-        },
-        (err) => {
-          console.log(err);
-        }
-      )
+        )
+      }
     });
     res.status(200).send('EVENT_RECEIVED');
   } else {
@@ -106,12 +105,11 @@ function getGift(data){
         throw new Error('Error on get data from API');
       }
       if(body){
-        resolve(body);
+        resolve(JSON.parse(body));
       }
     })
   })
 }
-
 
 app.listen(app.get('port'), function() {
 	console.log("Server started")
