@@ -60,6 +60,9 @@ app.post('/webhook', (req, res) => {
             sendText(sender, 'Ohh, no gift for you..');
           }
         },
+        (err) => {
+          console.log(err);
+        }
       )
       console.log(webhook_event);
     });
