@@ -1,29 +1,28 @@
 
 'use strict'
 
-const express = require('express')
-const bodyParser = require('body-parser')
-const request = require('request')
+const express = require('express');
+const bodyParser = require('body-parser');
+const request = require('request');
 
-const app = express()
+const app = express();
 
-app.set('port', (process.env.PORT || 5000))
+app.set('port', (process.env.PORT || 5000));
 
-// Allows us to process the data
-app.use(bodyParser.urlencoded({extended: false}))
-app.use(bodyParser.json())
-
-// ROUTES
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
 app.get('/', function(req, res) {
-	res.send("Hi I am a chatbot")
+	res.send('Hi swiftgift team!');
 })
 
-let token = "EAADK80zWSdgBAPZBcBGoGYYA1o38XFy3KKRGOwC32ZCWmBEYjRw3rVJN5rBeWT2nFZAwa7m0pIBMvgFvsGCWA4rLxIBlsk3VqdYHfDJjulZB8P9XpX3FBZCD5XEQgtY2IXkuO0Do9wUDo2vCXLZBZBoVCu4qdlQXMeavMQ4u4pwtwZDZD"
+const APP_TOKEN = 'EAADK80zWSdgBAPZBcBGoGYYA1o38XFy3KKRGOwC32ZCWmBEYjRw3rVJN5rBeWT2nFZAwa7m0pIBMvgFvsGCWA4rLxIBlsk3VqdYHfDJjulZB8P9XpX3FBZCD5XEQgtY2IXkuO0Do9wUDo2vCXLZBZBoVCu4qdlQXMeavMQ4u4pwtwZDZD'
+const FB_API = 'https://graph.facebook.com/v2.6/me/messages';
+const NO_RESULT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5HuehtrKIwuO1jb0tq7o8-O5OzmUKsDeQj2_K18I7h6voDpjB7Q';
 
 app.get('/webhook', (req, res) => {
 
-  let VERIFY_TOKEN = "swiftgift"
+  let VERIFY_TOKEN = 'swiftgift'
     
   let mode = req.query['hub.mode'];
   let token = req.query['hub.verify_token'];
@@ -31,11 +30,8 @@ app.get('/webhook', (req, res) => {
     
   if (mode && token) {
   
-    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-      
-      console.log('WEBHOOK_VERIFIED');
-      res.status(200).send(challenge);
-    
+    if (mode === 'subscribe' && token === VERIFY_TOKEN) {    
+      res.status(200).send(challenge);    
     } else {
       res.sendStatus(403);
     }
@@ -45,42 +41,48 @@ app.get('/webhook', (req, res) => {
 app.post('/webhook', (req, res) => {  
   let body = req.body;
   if (body.object === 'page') {
-
     body.entry.forEach(function(entry) {
+
       let webhook_event = entry.messaging[0];
+
       if(webhook_event.message) {
+        
         let message = webhook_event.message.text;
         let sender = webhook_event.sender.id;
+
         getGift(message).then(
           (res) => {
             createMessage(sender, res.collection);
+            res.sendStatus(200);
           },
           (err) => {
             sendErrorMessage(sender, 'Try again please');
-            console.log(err);
+            throw new Error(err.message);
+            res.sendStatus(500);
           }
         )
+      }else {
+        res.sendStatus(404);
       }
     });
-    res.status(200).send('EVENT_RECEIVED');
   } else {
     res.sendStatus(404);
   }
 
 });
 
-function sendText(sender, elements) {
+function sendMessage(sender, elements) {
 	request({
-		url: "https://graph.facebook.com/v2.6/me/messages",
-		qs : { access_token: token },
-		method: "POST",
+		url: FB_API,
+		qs : { access_token: APP_TOKEN },
+		method: 'POST',
 		json: {
 			recipient: { id: sender },
 			message:{
         attachment:{
-          type:"template",
+          type:'template',
           payload:{
-            template_type: "generic",
+            template_type: 'generic',
             sharable: true,
             image_aspect_ratio: 'square',
             elements: elements
@@ -90,10 +92,10 @@ function sendText(sender, elements) {
 		}
 	}, (error, response, body) => {
 		if (error) {
-      console.log("sending error");
+      console.log('sending error');
       sendErrorMessage(sender, 'Try again please');
 		} else if (response.body.error) {
-      console.log("response body error")
+      console.log('response body error')
       sendErrorMessage(sender, 'Try again please');
 		}console.log(body);
 	})
@@ -101,9 +103,9 @@ function sendText(sender, elements) {
 
 function sendErrorMessage(sender, text){
   request({
-		url: "https://graph.facebook.com/v2.6/me/messages",
-		qs : { access_token: token },
-		method: "POST",
+		url: FB_API,
+		qs : { access_token: APP_TOKEN },
+		method: 'POST',
 		json: {
 			recipient: { id: sender },
 			message:{
@@ -112,9 +114,9 @@ function sendErrorMessage(sender, text){
 		}
 	}, (error, response, body) => {
 		if (error) {
-			console.log("sending error");
+			console.log('sending error');
 		} else if (response.body.error) {
-			console.log("response body error");
+			console.log('response body error');
 		}console.log(body);
 	})
 }
@@ -124,11 +126,13 @@ function getGift(data){
     request({
       url: `https://swiftgift.me/api/v2/products`,
       qs : { search: data},
-      method: "GET",
+      method: 'GET',
     }, (error, response, body) => {
       if (error) {
+        sendErrorMessage(sender, 'Try again please');
         throw new Error('Error on get data from API');
       } else if (response.body.error) {
+        sendErrorMessage(sender, 'Try again please');        
         throw new Error('Error on get data from API');
       }
       if(body){
@@ -149,22 +153,22 @@ function createMessage(sender, data){
           subtitle: i.lowest_price + i.currency,
         });
         if(index % 5 === 0 || index === data.length - 1){
-          sendText(sender, response);
+          sendMessage(sender, response);
           response = [];
         }
       })
       
     }else{
-      sendText(sender, [{
+      sendMessage(sender, [{
         title: 'Ohh... no gifts for you',
-        image_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5HuehtrKIwuO1jb0tq7o8-O5OzmUKsDeQj2_K18I7h6voDpjB7Q',
+        image_url: NO_RESULT_IMAGE,
       }]);
     }
   });
 }
 
 app.listen(app.get('port'), function() {
-	console.log("Server started")
+	console.log('Server started')
 })
 
 
