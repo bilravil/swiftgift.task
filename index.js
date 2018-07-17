@@ -114,19 +114,6 @@ function getGift(data){
     })
   })
 }
-getGift('mug').then(
-  (res) => {
-    if(res.collection.length > 0){
-      sendText('1856151221127912', JSON.stringify(res.collection));
-    }else {
-      sendText('1856151221127912', 'Ohh, no gift for you..');
-    }
-    
-  },
-  (err) => {
-    console.log(err);
-  }
-)
 
 app.listen(app.get('port'), function() {
 	console.log("Server started on", port)
