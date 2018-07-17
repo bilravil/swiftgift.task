@@ -9,6 +9,7 @@ const router = express.Router();
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || '';
 const APP_TOKEN = process.env.APP_TOKEN || '';
 const FB_API = process.env.FB_API || '';
+const SEARCH_API = process.env.SEARCH_API || '';
 const NO_RESULT_IMAGE = process.env.NO_RESULT_IMAGE || '';
 
 router.get('/webhook', (req, res) => {
@@ -39,7 +40,7 @@ router.post('/webhook', (req, res) => {
         let message = webhook_event.message.text;
         let sender = webhook_event.sender.id;
 
-        getGift(message).then(
+        getGiftsData(message).then(
           (result) => {
             createMessage(sender, result.collection);
             res.sendStatus(200);
@@ -111,10 +112,10 @@ function sendErrorMessage(sender, text){
 	})
 }
 
-function getGift(data){
+function getGiftsData(data){
   return new Promise((resolve, reject) => {
     request({
-      url: `https://swiftgift.me/api/v2/products`,
+      url: SEARCH_API,
       qs : { search: data},
       method: 'GET',
     }, (error, response, body) => {
