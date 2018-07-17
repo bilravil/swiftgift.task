@@ -31,7 +31,7 @@ app.post('/webhook', (req, res) => {
 app.get('/webhook', (req, res) => {
 
   // Your verify token. Should be a random string.
-  let VERIFY_TOKEN = "<YOUR_VERIFY_TOKEN>"
+  let VERIFY_TOKEN = "swiftgift"
     
   let mode = req.query['hub.mode'];
   let token = req.query['hub.verify_token'];
