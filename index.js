@@ -4,22 +4,22 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
-
+const port = 3000;
 const app = express()
 
-app.set('port', (process.env.PORT || 5000))
+app.set('port', (port))
 
-// Allows us to process the data
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
-// ROUTES
 
 app.get('/', function(req, res) {
 	res.send("Hi I am a chatbot")
 })
 
-let token = "EAADK80zWSdgBACFu4CiTs8ZBYjXp11DmYlqLTEUNQH1h4yX1OZA5LVd2f9r3NxGzZAnZAMeiLAQG7pPzdLgsMU1zspnjwZBhfvCrbDbfIg3MMsGaBluG71Y1pKFNGhXuDZAiRnY0wtzVlzk567mhNLuky65NUN5oARwoUQ81WDDgZDZD"
+const token = `EAADK80zWSdgBACFu4CiTs8ZBYjXp11DmYlqLTEUNQH1h4yX1OZA5LVd2f9r3NxGzZA
+                nZAMeiLAQG7pPzdLgsMU1zspnjwZBhfvCrbDbfIg3MMsGaBluG71Y1pKFNGhXuDZAi
+                RnY0wtzVlzk567mhNLuky65NUN5oARwoUQ81WDDgZDZD`;
 
 app.get('/webhook', (req, res) => {
 
@@ -52,14 +52,14 @@ app.post('/webhook', (req, res) => {
       let webhook_event = entry.messaging[0];
       let message = webhook_event.message.text;
       let sender = webhook_event.sender.id;
-      console.log(webhook_event.message.text);
-      getGift('mug').then(
+      getGift(message).then(
         (res) => {
-          sendText(sender, JSON.stringify(res.collection))
+          if(res.collection.length > 0){
+            sendText(sender, JSON.stringify(res.collection));
+          }else {
+            sendText(sender, 'Ohh, no gift for you..');
+          }
         },
-        (err) => {
-          console.log(err);
-        }
       )
       console.log(webhook_event);
     });
@@ -72,7 +72,7 @@ app.post('/webhook', (req, res) => {
 });
 
 function sendText(sender, text) {
-	let messageData = {text: text}
+	let messageData = { text: text }
 	request({
 		url: "https://graph.facebook.com/v2.6/me/messages",
 		qs : { access_token: token },
@@ -83,11 +83,13 @@ function sendText(sender, text) {
 		}
 	}, (error, response, body) => {
 		if (error) {
+      console.log(error);
 			console.log("sending error")
 		} else if (response.body.error) {
       console.log(response.body.error);
 			console.log("response body error")
-		}
+    }
+    console.log(response);
 	})
 }
 
@@ -99,11 +101,9 @@ function getGift(data){
       method: "GET",
     }, (error, response, body) => {
       if (error) {
-        console.log("sending error");
-        return reject();
+        throw new Error('Error on get data from API');
       } else if (response.body.error) {
-        return reject();
-        console.log("response body error");
+        throw new Error('Error on get data from API');
       }
       if(body){
         resolve(body);
@@ -111,10 +111,22 @@ function getGift(data){
     })
   })
 }
-//getGift('mug')
+getGift('mug').then(
+  (res) => {
+    if(res.collection.length > 0){
+      sendText('1856151221127912', JSON.stringify(res.collection));
+    }else {
+      sendText('1856151221127912', 'Ohh, no gift for you..');
+    }
+    
+  },
+  (err) => {
+    console.log(err);
+  }
+)
 
 app.listen(app.get('port'), function() {
-	console.log("running: port")
+	console.log("Server started on", port)
 })
 
 
