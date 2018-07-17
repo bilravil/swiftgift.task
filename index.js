@@ -148,8 +148,7 @@ function createMessage(sender, data){
           image_url: i.image_url.substr(2),
           subtitle: i.lowest_price + i.currency,
         });
-        if(index !== 0 && (index % 5 === 0 || index === data.length - 1)){
-          console.log(response);
+        if(index % 5 === 0 || index === data.length - 1){
           sendText(sender, response);
           response = [];
         }
