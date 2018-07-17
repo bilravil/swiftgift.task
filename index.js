@@ -1,70 +1,67 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
-const port = 3000;
-const https = require('https');
 
-app.use(bodyParser.json());
+'use strict'
 
-app.listen(port, () => {
-  console.log('Server started on ' + port);
-});
+const express = require('express')
+const bodyParser = require('body-parser')
+const request = require('request')
 
-app.get('/', function (req, res) {
-  res.send('swiftgift hello!')
+const app = express()
+
+app.set('port', (process.env.PORT || 5000))
+
+// Allows us to process the data
+app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.json())
+
+// ROUTES
+
+app.get('/', function(req, res) {
+	res.send("Hi I am a chatbot")
 })
 
-app.post('/webhook', (req, res) => {
+let token = ""
 
-  let body = req.body;
+// Facebook 
 
-  if (body.object === 'page') {
+app.get('/webhook/', function(req, res) {
+	if (req.query['hub.verify_token'] === "swiftgift") {
+		res.send(req.query['hub.challenge'])
+	}
+	res.send("Wrong token")
+})
 
-    body.entry.forEach(function(entry) {
+app.post('/webhook/', function(req, res) {
+	let messaging_events = req.body.entry[0].messaging
+	for (let i = 0; i < messaging_events.length; i++) {
+		let event = messaging_events[i]
+		let sender = event.sender.id
+		if (event.message && event.message.text) {
+			let text = event.message.text
+			sendText(sender, "Text echo: " + text.substring(0, 100))
+		}
+	}
+	res.sendStatus(200)
+})
 
-      let webhook_event = entry.messaging[0];
-      console.log(webhook_event);
-    });
+function sendText(sender, text) {
+	let messageData = {text: text}
+	request({
+		url: "https://graph.facebook.com/v2.6/me/messages",
+		qs : {access_token: token},
+		method: "POST",
+		json: {
+			recipient: {id: sender},
+			message : messageData,
+		}
+	}, function(error, response, body) {
+		if (error) {
+			console.log("sending error")
+		} else if (response.body.error) {
+			console.log("response body error")
+		}
+	})
+}
 
-    res.status(200).send('EVENT_RECEIVED');
-  } else {
-    res.sendStatus(404);
-  }
-});
-
-app.get('/webhook', (req, res) => {
-
-  // Your verify token. Should be a random string.
-  let VERIFY_TOKEN = "swiftgift"
-    
-  let mode = req.query['hub.mode'];
-  let token = req.query['hub.verify_token'];
-  let challenge = req.query['hub.challenge'];
-    
-  if (mode && token) {
-  
-    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-      
-      console.log('WEBHOOK_VERIFIED');
-      res.status(200).send(challenge);
-    
-    } else {
-      res.sendStatus(403);
-    }
-  }
-});
-
-// https.get('https://swiftgift.me/api/v2/products?search=mug', (resp) => {
-//   let data = '';
-
-//   resp.on('data', (chunk) => {
-//     data += chunk;
-//   }); 
- 
-//   resp.on('end', () => {
-//     console.log(JSON.parse(data));
-//   });
- 
-// }).on('error', (err) => {
-//     throw new Error(err.message);
-// });
+app.listen(app.get('port'), function() {
+	console.log("running: port")
+})
