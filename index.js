@@ -80,6 +80,8 @@ function sendText(sender, elements) {
           type:"template",
           payload:{
             template_type: "generic",
+            sharable: true,
+            image_aspect_ratio: 'square',
             elements: elements
           }
         }
@@ -121,7 +123,6 @@ function createMessage(sender, data){
         response.push({
           title: i.name,
           image_url: i.image_url.substr(2),
-          image_aspect_ratio: 'square',
           subtitle: i.lowest_price + i.currency,
         });
         if(index % 4 === 0 || index === data.length - 1){
@@ -133,7 +134,6 @@ function createMessage(sender, data){
       sendText(sender, [{
         title: 'Ohh... no gifts for you',
         image_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5HuehtrKIwuO1jb0tq7o8-O5OzmUKsDeQj2_K18I7h6voDpjB7Q',
-        image_aspect_ratio: 'square',
       }]);
     }
   });
