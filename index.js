@@ -75,6 +75,7 @@ app.post('/webhook', (req, res) => {
 });
 
 function sendText(sender, text) {
+  console.log(sender, text);
 	let messageData = { text: text }
 	request({
 		url: "https://graph.facebook.com/v2.6/me/messages",
@@ -109,6 +110,7 @@ function getGift(data){
         throw new Error('Error on get data from API');
       }
       if(body){
+        console.log(body);
         resolve(body);
       }
     })
