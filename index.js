@@ -52,8 +52,10 @@ app.post('/webhook', (req, res) => {
       let webhook_event = entry.messaging[0];
       let message = webhook_event.message.text;
       let sender = webhook_event.sender.id;
+      console.log(sender, message);
       getGift(message).then(
         (res) => {
+          console.log(res);
           sendText(sender, JSON.stringify(res.collection))
         },
         (err) => {
@@ -84,6 +86,7 @@ function sendText(sender, text) {
 		if (error) {
 			console.log("sending error")
 		} else if (response.body.error) {
+      console.log(response.body.error);
 			console.log("response body error")
 		}
 	})
