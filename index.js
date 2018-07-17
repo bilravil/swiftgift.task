@@ -8,13 +8,10 @@ const dotenv = require('dotenv');
 dotenv.config({ path: ".env"})
 
 const app = express();
-const router = require('./routes');
+const router = require('./routes').router;
+
 app.set('port', (process.env.PORT || 5000));
-
-app.get('/', function(req, res) {
-	res.send('Hi swiftgift team!');
-})
-
+app.use(router);
 
 app.listen(app.get('port'), function() {
 	console.log('Server started')
