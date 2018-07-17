@@ -68,7 +68,6 @@ app.post('/webhook', (req, res) => {
   } else {
     res.sendStatus(404);
   }
-
 });
 
 function sendMessage(sender, elements) {
@@ -92,12 +91,12 @@ function sendMessage(sender, elements) {
 		}
 	}, (error, response, body) => {
 		if (error) {
-      console.log('sending error');
       sendErrorMessage(sender, 'Try again please');
+      throw new Error('Error on send msg to FB', error);
 		} else if (response.body.error) {
-      console.log('response body error')
       sendErrorMessage(sender, 'Try again please');
-		}console.log(body);
+      throw new Error('Error on send msg to FB', response.body.error);
+		}
 	})
 }
 
@@ -114,10 +113,12 @@ function sendErrorMessage(sender, text){
 		}
 	}, (error, response, body) => {
 		if (error) {
-			console.log('sending error');
+      sendErrorMessage(sender, 'Try again please');
+      throw new Error('Error on send msg to FB', error);
 		} else if (response.body.error) {
-			console.log('response body error');
-		}console.log(body);
+      sendErrorMessage(sender, 'Try again please');
+      throw new Error('Error on send msg to FB', response.body.error);
+		}
 	})
 }
 
@@ -130,10 +131,10 @@ function getGift(data){
     }, (error, response, body) => {
       if (error) {
         sendErrorMessage(sender, 'Try again please');
-        throw new Error('Error on get data from API');
+        throw new Error('Error on get data from API', error);
       } else if (response.body.error) {
         sendErrorMessage(sender, 'Try again please');        
-        throw new Error('Error on get data from API');
+        throw new Error('Error on get data from API', response.body.error);
       }
       if(body){
         resolve(JSON.parse(body));
