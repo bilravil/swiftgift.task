@@ -21,30 +21,22 @@ app.get('/', function(req, res) {
 
 let token = "EAADK80zWSdgBACFu4CiTs8ZBYjXp11DmYlqLTEUNQH1h4yX1OZA5LVd2f9r3NxGzZAnZAMeiLAQG7pPzdLgsMU1zspnjwZBhfvCrbDbfIg3MMsGaBluG71Y1pKFNGhXuDZAiRnY0wtzVlzk567mhNLuky65NUN5oARwoUQ81WDDgZDZD"
 
-// Facebook 
-
 app.get('/webhook', (req, res) => {
 
-  // Your verify token. Should be a random string.
   let VERIFY_TOKEN = "swiftgift"
     
-  // Parse the query params
   let mode = req.query['hub.mode'];
   let token = req.query['hub.verify_token'];
   let challenge = req.query['hub.challenge'];
     
-  // Checks if a token and mode is in the query string of the request
   if (mode && token) {
   
-    // Checks the mode and token sent is correct
     if (mode === 'subscribe' && token === VERIFY_TOKEN) {
       
-      // Responds with the challenge token from the request
       console.log('WEBHOOK_VERIFIED');
       res.status(200).send(challenge);
     
     } else {
-      // Responds with '403 Forbidden' if verify tokens do not match
       res.sendStatus(403);      
     }
   }
@@ -53,23 +45,26 @@ app.get('/webhook', (req, res) => {
 app.post('/webhook', (req, res) => {  
  
   let body = req.body;
-
-  // Checks this is an event from a page subscription
   if (body.object === 'page') {
 
-    // Iterates over each entry - there may be multiple if batched
     body.entry.forEach(function(entry) {
 
-      // Gets the message. entry.messaging is an array, but 
-      // will only ever contain one message, so we get index 0
       let webhook_event = entry.messaging[0];
+      let message = webhook_event.message.text;
+      let sender = webhook_event.sender.id;
+      getGift(message).then(
+        (res) => {
+          sendText(sender, JSON.stringify(res.collection))
+        },
+        (err) => {
+          console.log(err);
+        }
+      )
       console.log(webhook_event);
     });
 
-    // Returns a '200 OK' response to all requests
     res.status(200).send('EVENT_RECEIVED');
   } else {
-    // Returns a '404 Not Found' if event is not from a page subscription
     res.sendStatus(404);
   }
 
@@ -79,13 +74,13 @@ function sendText(sender, text) {
 	let messageData = {text: text}
 	request({
 		url: "https://graph.facebook.com/v2.6/me/messages",
-		qs : {access_token: token},
+		qs : { access_token: token },
 		method: "POST",
 		json: {
-			recipient: {id: sender},
+			recipient: { id: sender },
 			message : messageData,
 		}
-	}, function(error, response, body) {
+	}, (error, response, body) => {
 		if (error) {
 			console.log("sending error")
 		} else if (response.body.error) {
@@ -94,6 +89,30 @@ function sendText(sender, text) {
 	})
 }
 
+function getGift(data){
+  return new Promise((resolve, reject) => {
+    request({
+      url: `https://swiftgift.me/api/v2/products`,
+      qs : { search: data},
+      method: "GET",
+    }, (error, response, body) => {
+      if (error) {
+        console.log("sending error");
+        return reject();
+      } else if (response.body.error) {
+        return reject();
+        console.log("response body error");
+      }
+      if(body){
+        resolve(body);
+      }
+    })
+  })
+}
+//getGift('mug')
+
 app.listen(app.get('port'), function() {
 	console.log("running: port")
 })
+
+
