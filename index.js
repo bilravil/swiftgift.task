@@ -68,8 +68,7 @@ app.post('/webhook', (req, res) => {
 
 });
 
-function sendText(sender, text, image) {
-	let messageData = {text: text}
+function sendText(sender, name, price, image) {
 	request({
 		url: "https://graph.facebook.com/v2.6/me/messages",
 		qs : { access_token: token },
@@ -83,9 +82,9 @@ function sendText(sender, text, image) {
             "template_type":"generic",
             "elements":[
                {
-                "title":"Welcome!",
-                "image_url":"https://petersfancybrownhats.com/company_image.png",
-                "subtitle":"We have the right hat for everyone.",
+                "title": name,
+                "image_url": image,
+                "subtitle": price,
                 "default_action": {
                   "type": "web_url",
                   "url": "https://petersfancybrownhats.com/view?item=103",
@@ -142,7 +141,7 @@ function createMessage(sender, data){
   return new Promise((resolve, reject) => {
     if(data.length > 0){
       data.map((i, index) => {
-        sendText(sender, i.name, i.image_url);
+        sendText(sender, i.name,i.lowest_price, i.image_url);
       })
       
     }else{
