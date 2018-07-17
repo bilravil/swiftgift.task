@@ -4,22 +4,22 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
-const port = 5000;
+
 const app = express()
 
-app.set('port', (port))
+app.set('port', (process.env.PORT || 5000))
 
+// Allows us to process the data
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
+// ROUTES
 
 app.get('/', function(req, res) {
 	res.send("Hi I am a chatbot")
 })
 
-const token = `EAADK80zWSdgBACFu4CiTs8ZBYjXp11DmYlqLTEUNQH1h4yX1OZA5LVd2f9r3NxGzZA
-                nZAMeiLAQG7pPzdLgsMU1zspnjwZBhfvCrbDbfIg3MMsGaBluG71Y1pKFNGhXuDZAi
-                RnY0wtzVlzk567mhNLuky65NUN5oARwoUQ81WDDgZDZD`;
+let token = "EAADK80zWSdgBACFu4CiTs8ZBYjXp11DmYlqLTEUNQH1h4yX1OZA5LVd2f9r3NxGzZAnZAMeiLAQG7pPzdLgsMU1zspnjwZBhfvCrbDbfIg3MMsGaBluG71Y1pKFNGhXuDZAiRnY0wtzVlzk567mhNLuky65NUN5oARwoUQ81WDDgZDZD"
 
 app.get('/webhook', (req, res) => {
 
@@ -56,15 +56,14 @@ app.post('/webhook', (req, res) => {
         (res) => {
           if(res.collection.length > 0){
             sendText(sender, JSON.stringify(res.collection));
-          }else {
-            sendText(sender, 'Ohh, no gift for you..');
+          }else{
+            sendText(sender, 'Ohh.. No gifts');
           }
         },
         (err) => {
           console.log(err);
         }
       )
-      console.log(webhook_event);
     });
 
     res.status(200).send('EVENT_RECEIVED');
@@ -75,8 +74,7 @@ app.post('/webhook', (req, res) => {
 });
 
 function sendText(sender, text) {
-  console.log(sender, text);
-	let messageData = { text: text }
+	let messageData = {text: text}
 	request({
 		url: "https://graph.facebook.com/v2.6/me/messages",
 		qs : { access_token: token },
@@ -87,13 +85,11 @@ function sendText(sender, text) {
 		}
 	}, (error, response, body) => {
 		if (error) {
-      console.log(error);
 			console.log("sending error")
 		} else if (response.body.error) {
       console.log(response.body.error);
 			console.log("response body error")
-    }
-    console.log(response);
+		}console.log(body);
 	})
 }
 
@@ -110,15 +106,15 @@ function getGift(data){
         throw new Error('Error on get data from API');
       }
       if(body){
-        console.log(body);
         resolve(body);
       }
     })
   })
 }
 
+
 app.listen(app.get('port'), function() {
-	console.log("Server started on", port)
+	console.log("Server started")
 })
 
 
