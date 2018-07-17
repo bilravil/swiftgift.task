@@ -43,13 +43,12 @@ app.get('/webhook', (req, res) => {
 });
 
 app.post('/webhook', (req, res) => {  
- console.log('POST WEBHOOK');
   let body = req.body;
   if (body.object === 'page') {
 
     body.entry.forEach(function(entry) {
       let webhook_event = entry.messaging[0];
-      if(!webhook_event.message) {
+      if(webhook_event.message) {
         let message = webhook_event.message.text;
         let sender = webhook_event.sender.id;
         getGift(message).then(
