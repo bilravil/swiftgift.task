@@ -1,0 +1,23 @@
+{
+  "name": "swiftgift.task",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bilravil/swiftgift.task.git"
+  },
+  "author": "Ravil Bilalov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bilravil/swiftgift.task/issues"
+  },
+  "homepage": "https://github.com/bilravil/swiftgift.task#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3"
+  }
+}
