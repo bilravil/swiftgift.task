@@ -68,26 +68,19 @@ app.post('/webhook', (req, res) => {
 
 });
 
-function sendText(sender, name, price, image) {
-  console.log(image);
+function sendText(sender, elements) {
 	request({
 		url: "https://graph.facebook.com/v2.6/me/messages",
 		qs : { access_token: token },
 		method: "POST",
 		json: {
 			recipient: { id: sender },
-			"message":{
-        "attachment":{
-          "type":"template",
-          "payload":{
-            "template_type":"generic",
-            "elements":[
-               {
-                "title": name,
-                "image_url": image,
-                "subtitle": price
-              }
-            ]
+			message:{
+        attachment:{
+          type:"template",
+          payload:{
+            template_type: "generic",
+            elements: elements
           }
         }
       }
@@ -121,14 +114,26 @@ function getGift(data){
 }
 
 function createMessage(sender, data){
+  let response = [];
   return new Promise((resolve, reject) => {
     if(data.length > 0){
       data.map((i, index) => {
-        sendText(sender, i.name,i.lowest_price, i.image_url.substr(2));
+        response.push({
+          title: i.name,
+          image_url:i.image_url.substr(2),
+          subtitle: i.lowest_price + i.currency,
+        });
+        if(index === data.length -1){
+          sendText(sender, response);
+        }
       })
       
     }else{
-      sendText(sender, 'Ohh.. No gifts', 'null');
+      sendText(sender, [{
+        title: 'Ohh... no gifts for you',
+        image_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5HuehtrKIwuO1jb0tq7o8-O5OzmUKsDeQj2_K18I7h6voDpjB7Q',
+        subtitle: '0',
+      }]);
     }
   });
 }
