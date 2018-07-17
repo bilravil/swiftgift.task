@@ -118,7 +118,7 @@ function getGift(data){
 function createMessage(data){
   return new Promise((resolve, reject) => {
     if(data.length > 0){
-      res.collection.map((i, index) => {
+      data.map((i, index) => {
         sendText(sender, i.name, i.image_url);
       })
       
