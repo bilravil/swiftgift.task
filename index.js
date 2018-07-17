@@ -56,6 +56,7 @@ app.post('/webhook', (req, res) => {
             createMessage(sender, res.collection);
           },
           (err) => {
+            sendErrorMessage(sender, 'Try again please');
             console.log(err);
           }
         )
@@ -89,9 +90,31 @@ function sendText(sender, elements) {
 		}
 	}, (error, response, body) => {
 		if (error) {
-			console.log("sending error")
+      console.log("sending error");
+      sendErrorMessage(sender, 'Try again please');
 		} else if (response.body.error) {
-			console.log("response body error")
+      console.log("response body error")
+      sendErrorMessage(sender, 'Try again please');
+		}console.log(body);
+	})
+}
+
+function sendErrorMessage(sender, text){
+  request({
+		url: "https://graph.facebook.com/v2.6/me/messages",
+		qs : { access_token: token },
+		method: "POST",
+		json: {
+			recipient: { id: sender },
+			message:{
+        text: text,
+      }
+		}
+	}, (error, response, body) => {
+		if (error) {
+			console.log("sending error");
+		} else if (response.body.error) {
+			console.log("response body error");
 		}console.log(body);
 	})
 }
@@ -125,7 +148,7 @@ function createMessage(sender, data){
           image_url: i.image_url.substr(2),
           subtitle: i.lowest_price + i.currency,
         });
-        if(index + 1 % 4 === 0 || index === data.length - 1){
+        if(index % 4 === 0 || index === data.length - 1){
           console.log(response);
           sendText(sender, response);
           response = [];
