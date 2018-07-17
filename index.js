@@ -54,7 +54,8 @@ app.post('/webhook', (req, res) => {
       let sender = webhook_event.sender.id;
       getGift(message).then(
         (res) => {
-          if(res.collection.length > 0){
+          console.log(res);
+          if(res.collection){
             sendText(sender, JSON.stringify(res.collection));
           }else{
             sendText(sender, 'Ohh.. No gifts');
