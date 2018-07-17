@@ -126,6 +126,7 @@ function createMessage(sender, data){
           subtitle: i.lowest_price + i.currency,
         });
         if(index % 4 === 0 || index === data.length - 1){
+          response = [];
           sendText(sender, response);
         }
       })
