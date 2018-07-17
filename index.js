@@ -51,14 +51,14 @@ app.post('/webhook', (req, res) => {
         let sender = webhook_event.sender.id;
 
         getGift(message).then(
-          (res) => {
-            createMessage(sender, res.collection);
+          (result) => {
+            createMessage(sender, result.collection);
             res.sendStatus(200);
           },
           (err) => {
             sendErrorMessage(sender, 'Try again please');
             throw new Error(err.message);
-            res.sendStatus(500);
+            res.sendStatus(404);
           }
         )
       }else {
