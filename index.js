@@ -10,6 +10,10 @@ app.listen(port, () => {
   console.log('Server started on ' + port);
 });
 
+app.get('/', function (req, res) {
+  res.send('swiftgift hello!')
+})
+
 app.post('/webhook', (req, res) => {
 
   let body = req.body;
