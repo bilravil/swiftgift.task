@@ -37,7 +37,7 @@ app.get('/webhook', (req, res) => {
       res.status(200).send(challenge);
     
     } else {
-      res.sendStatus(403);      
+      res.sendStatus(403);
     }
   }
 });
@@ -52,10 +52,9 @@ app.post('/webhook', (req, res) => {
       let webhook_event = entry.messaging[0];
       let message = webhook_event.message.text;
       let sender = webhook_event.sender.id;
-      console.log(sender, message);
-      getGift(message).then(
+      console.log(webhook_event.message.text);
+      getGift('mug').then(
         (res) => {
-          console.log(res);
           sendText(sender, JSON.stringify(res.collection))
         },
         (err) => {
