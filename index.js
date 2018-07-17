@@ -53,7 +53,7 @@ app.post('/webhook', (req, res) => {
         let sender = webhook_event.sender.id;
         getGift(message).then(
           (res) => {
-            createMessage(res.collection);
+            createMessage(sender, res.collection);
           },
           (err) => {
             console.log(err);
@@ -115,7 +115,7 @@ function getGift(data){
   })
 }
 
-function createMessage(data){
+function createMessage(sender, data){
   return new Promise((resolve, reject) => {
     if(data.length > 0){
       data.map((i, index) => {
