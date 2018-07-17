@@ -19,7 +19,7 @@ app.get('/', function(req, res) {
 	res.send("Hi I am a chatbot")
 })
 
-let token = "EAADK80zWSdgBACFu4CiTs8ZBYjXp11DmYlqLTEUNQH1h4yX1OZA5LVd2f9r3NxGzZAnZAMeiLAQG7pPzdLgsMU1zspnjwZBhfvCrbDbfIg3MMsGaBluG71Y1pKFNGhXuDZAiRnY0wtzVlzk567mhNLuky65NUN5oARwoUQ81WDDgZDZD"
+let token = "EAADK80zWSdgBAMuBqZA8a86KNZBZC5GGEEZARbn0mnAZBaDxxDMegLzCjJr4ZA1bvaV2PYiL3hNZA7pOGJb96c4scyHJgdz0fWIm5jX0tB7f3Ld2uXj8RiSqd5I0jmmuqXvOFVkg2ZCuOcrGyavcN9N4QZApJBa7Bz7OvjjsLfgpWSAZDZD"
 
 app.get('/webhook', (req, res) => {
 
@@ -50,7 +50,7 @@ app.post('/webhook', (req, res) => {
     body.entry.forEach(function(entry) {
 
       let webhook_event = entry.messaging[0];
-      console.log(entry);
+      console.log(webhook_event);
       let message = webhook_event.message.text;
       let sender = webhook_event.sender.id;
       getGift(message).then(
