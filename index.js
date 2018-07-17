@@ -53,11 +53,7 @@ app.post('/webhook', (req, res) => {
         let sender = webhook_event.sender.id;
         getGift(message).then(
           (res) => {
-            if(res.collection.length > 0){
-              sendText(sender, JSON.stringify(res.collection));
-            }else{
-              sendText(sender, 'Ohh.. No gifts');
-            }
+            createMessage(res.collection);
           },
           (err) => {
             console.log(err);
@@ -72,7 +68,7 @@ app.post('/webhook', (req, res) => {
 
 });
 
-function sendText(sender, text) {
+function sendText(sender, text, image) {
 	let messageData = {text: text}
 	request({
 		url: "https://graph.facebook.com/v2.6/me/messages",
@@ -80,7 +76,16 @@ function sendText(sender, text) {
 		method: "POST",
 		json: {
 			recipient: { id: sender },
-			message : messageData,
+			message: {
+        text: text,
+        attachment:{
+          type:"image",
+          payload:{
+            url:image,
+            is_reusable:true
+          }
+        }
+      }
 		}
 	}, (error, response, body) => {
 		if (error) {
@@ -108,6 +113,19 @@ function getGift(data){
       }
     })
   })
+}
+
+function createMessage(data){
+  return new Promise((resolve, reject) => {
+    if(data.length > 0){
+      res.collection.map((i, index) => {
+        sendText(sender, i.name, i.image_url);
+      })
+      
+    }else{
+      sendText(sender, 'Ohh.. No gifts', null);
+    }
+  });
 }
 
 app.listen(app.get('port'), function() {
