@@ -10,6 +10,9 @@ dotenv.config({ path: ".env"})
 const app = express();
 const router = require('./routes').router;
 
+app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.json())
+
 app.set('port', (process.env.PORT || 5000));
 app.use(router);
 
