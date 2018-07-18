@@ -3,7 +3,6 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const request = require('request');
 const dotenv = require('dotenv');
 dotenv.config({ path: ".env"})
 

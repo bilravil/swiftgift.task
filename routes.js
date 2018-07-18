@@ -5,6 +5,7 @@ dotenv.config({ path: ".env"})
 
 const express = require('express');
 const router = express.Router();
+const request = require('request');
 
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || '';
 const APP_TOKEN = process.env.APP_TOKEN || '';
